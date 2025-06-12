@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}mY.com{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Welcome to Your Dashboard</h1>
+    
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Projects</h3>
+            <p class="stat-value">12</p>
+        </div>
+        <div class="stat-card">
+            <h3>Analyses</h3>
+            <p class="stat-value">24</p>
+        </div>
+        <div class="stat-card">
+            <h3>Conversions</h3>
+            <p class="stat-value">8</p>
+        </div>
+    </div>
+
+    <div class="recent-activity">
+        <h2>Recent Activity</h2>
+        <ul class="activity-list">
+            <li>Converted data.csv to JSON format</li>
+            <li>Created new project "Sales Analysis"</li>
+            <li>Scraped website example.com</li>
+        </ul>
+    </div>
+
+    <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+            <a href="{% url 'data_analysis' %}" class="btn">New Analysis</a>
+            <a href="{% url 'data_converter' %}" class="btn">Convert Data</a>
+            <a href="{% url 'data_scraping' %}" class="btn">Scrape Website</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

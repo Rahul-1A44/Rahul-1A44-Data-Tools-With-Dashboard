@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="logo">Dashboard Pro</div>
+        <nav>
+            <ul>
+                <li><a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+                <li><a href="{% url 'data_analysis' %}" class="{% if request.resolver_match.url_name == 'data_analysis' %}active{% endif %}">Analysis</a></li>
+                <li><a href="{% url 'data_converter' %}" class="{% if request.resolver_match.url_name == 'data_converter' %}active{% endif %}">Converter</a></li>
+                <li><a href="{% url 'data_scraping' %}" class="{% if request.resolver_match.url_name == 'data_scraping' %}active{% endif %}">Scraper</a></li>
+                
+            </ul>
+        </nav>
+        <div class="user-actions">
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="profile-link">Hello, {{ user.username }}</a>
+                <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="login-btn">Login</a>
+                <a href="{% url 'register_user' %}" class="register-btn">Register</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+
+    <script src="/static/js/charts.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

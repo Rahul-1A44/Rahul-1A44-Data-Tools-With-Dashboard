@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>Your Profile</h1>
+    
+    <div class="profile-info">
+        <div class="avatar-section">
+            <div class="avatar-placeholder"></div>
+            <button class="btn change-avatar-btn">Change Avatar</button>
+        </div>
+        
+        <div class="details-section">
+            <div class="detail-row">
+                <span class="detail-label">Username:</span>
+                <span class="detail-value">{{ user.username }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">{{ user.email }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Joined:</span>
+                <span class="detail-value">{{ user.date_joined|date:"M d, Y" }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="account-actions">
+        <h2>Account Actions</h2>
+        <div class="action-buttons">
+            <a href="#" class="btn change-password-btn">Change Password</a>
+            <a href="#" class="btn update-email-btn">Update Email</a>
+            <a href="#" class="btn delete-account-btn">Delete Account</a>
+        </div>
+    </div>
+    
+    <div class="user-stats">
+        <h2>Your Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>Projects</h3>
+                <p class="stat-value">12</p>
+            </div>
+            <div class="stat-item">
+                <h3>Analyses</h3>
+                <p class="stat-value">24</p>
+            </div>
+            <div class="stat-item">
+                <h3>Conversions</h3>
+                <p class="stat-value">8</p>
+            </div>
+            <div class="stat-item">
+                <h3>Scrapes</h3>
+                <p class="stat-value">15</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

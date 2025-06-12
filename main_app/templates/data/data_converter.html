@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %} 
+
+{% block title %}Data Converter{% endblock %}
+
+{% block content %}
+<div class="converter-container">
+    <h1>Data Format Converter</h1>
+    
+    <div class="converter-form">
+        <form method="post" id="converterForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {# --- FILE INPUT SECTION (Visible by Default) --- #}
+            <div class="form-group" id="inputFileGroup">
+                <label for="inputFile">Upload Input File (PDF, Excel, CSV):</label>
+                <input type="file" id="inputFile" name="input_file" accept=".pdf,.xlsx,.csv" required>
+                <small class="form-text text-muted">Upload PDF, Excel (XLSX), or CSV files here.</small>
+            </div>
+
+            {# --- TEXT AREA SECTION (Hidden by Default) --- #}
+            <div class="form-group" id="inputTextAreaGroup" style="display:none;">
+                <label for="inputData">Input Data (Text/JSON/YAML):</label>
+                <textarea id="inputData" name="input_data" rows="10" placeholder="Enter your text, JSON, or YAML data here." ></textarea>
+                <small class="form-text text-muted">For Plain Text, JSON, or YAML, paste your data here.</small>
+            </div>
+
+            <div class="form-group format-selection">
+                <label for="inputFormat">Input Format:</label>
+                <select id="inputFormat" name="input_format" required>
+                    {# Prioritize file-based options for initial display #}
+                    <option value="pdf" {% if input_format == 'pdf' %}selected{% endif %}>PDF (Text Extraction)</option>
+                    <option value="xlsx" {% if input_format == 'xlsx' %}selected{% endif %}>Excel (XLSX)</option>
+                    <option value="csv" {% if input_format == 'csv' %}selected{% endif %}>CSV</option>
+                    {# Then text-based options #}
+                    <option value="text" {% if input_format == 'text' %}selected{% endif %}>Plain Text</option>
+                    <option value="json" {% if input_format == 'json' %}selected{% endif %}>JSON</option>
+                    <option value="yaml" {% if input_format == 'yaml' %}selected{% endif %}>YAML</option>
+                </select>
+            </div>
+            
+            <div class="form-group format-selection">
+                <label for="outputFormat">Output Format:</label>
+                <select id="outputFormat" name="output_format" required>
+                    <option value="text" {% if output_format == 'text' %}selected{% endif %}>Plain Text</option>
+                    <option value="json" {% if output_format == 'json' %}selected{% endif %}>JSON</option>
+                    <option value="yaml" {% if output_format == 'yaml' %}selected{% endif %}>YAML</option>
+                    <option value="csv" {% if output_format == 'csv' %}selected{% endif %}>CSV</option>
+                    <option value="pdf" {% if output_format == 'pdf' %}selected{% endif %}>PDF (from Text)</option>
+                    <option value="xlsx" {% if output_format == 'xlsx' %}selected{% endif %}>Excel (XLSX)</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn convert-btn">Convert Data</button>
+        </form>
+    </div>
+
+    {% if converted_data_display or download_link or conversion_error %}
+    <div class="results-section">
+        <h2>Conversion Results</h2>
+        <div class="results-container">
+            {% if converted_data_display %} {# For text-based output to display directly #}
+                <pre class="converted-output">{{ converted_data_display }}</pre>
+            {% elif conversion_error %}
+                <p class="error-message">{{ conversion_error }}</p>
+            {% endif %}
+
+            {% if download_link %} {# For binary file downloads (PDF, XLSX) #}
+                <p><a href="{{ download_link }}" class="btn download-btn" download>Download Converted File</a></p>
+            {% endif %}
+        </div>
+        
+        <div class="results-actions">
+            {% if converted_data_display %} {# Show Download and Edit for text-based display #}
+                <button type="button" class="btn action-btn" id="downloadTextBtn">Download Text</button>
+                <button type="button" class="btn action-btn" id="editDataBtn">Edit Converted Data</button>
+            {% endif %}
+            <button type="button" class="btn action-btn back-btn" onclick="location.reload()">Back to Converter</button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="{% static 'js/converter.js' %}"></script> 
+
+{% endblock content %}

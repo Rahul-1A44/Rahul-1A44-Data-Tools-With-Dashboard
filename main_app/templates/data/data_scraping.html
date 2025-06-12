@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Web Data Scraper{% endblock %}
+
+{% block content %}
+<div class="scraping-container">
+    <h1>Web Data Scraper</h1>
+
+    {# The form container's initial display is set by Django based on whether there are results or errors #}
+    <div class="scraping-form" id="scrapingFormContainer" style="{% if scraped_data_display or scrape_error %}display: none;{% else %}display: block;{% endif %}">
+        <form method="post" id="scrapingForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="targetUrl">Target URL:</label>
+                <input type="url" id="targetUrl" name="target_url" placeholder="https://example.com" required value="{{ target_url|default:'' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="scrapingType">What to Scrape:</label>
+                <select id="scrapingType" name="scraping_type">
+                    <option value="title" {% if scraping_type == 'title' %}selected{% endif %}>Page Title</option>
+                    <option value="paragraphs" {% if scraping_type == 'paragraphs' %}selected{% endif %}>All Paragraphs</option>
+                    <option value="links" {% if scraping_type == 'links' %}selected{% endif %}>All Links (URLs)</option>
+                    <option value="headings" {% if scraping_type == 'headings' %}selected{% endif %}>All Headings (H1-H6)</option>
+                    <option value="bold_words" {% if scraping_type == 'bold_words' %}selected{% endif %}>Bold Words</option>
+                    <option value="tables" {% if scraping_type == 'tables' %}selected{% endif %}>HTML Tables</option>
+                    <option value="footer" {% if scraping_type == 'footer' %}selected{% endif %}>Footer Content</option>
+                    <option value="all_text" {% if scraping_type == 'all_text' %}selected{% endif %}>All Visible Text</option>
+                    <option value="custom" {% if scraping_type == 'custom' %}selected{% endif %}>Custom CSS Selector</option>
+                </select>
+            </div>
+
+            {# The custom selector group's initial display is also set by Django #}
+            <div class="form-group custom-selector-group" {% if scraping_type != 'custom' %}style="display: none;"{% endif %}>
+                <label for="customSelector">CSS Selector:</label>
+                <input type="text" id="customSelector" name="custom_selector" placeholder="div.content > p" value="{{ custom_selector|default_if_none:'' }}">
+            </div>
+
+            <div class="form-group format-selection">
+                <label for="outputScrapeFormat">Output Format:</label>
+                <select id="outputScrapeFormat" name="output_scrape_format" required>
+                    <option value="json" {% if output_scrape_format == 'json' %}selected{% endif %}>JSON</option>
+                    <option value="csv" {% if output_scrape_format == 'csv' %}selected{% endif %}>CSV</option>
+                    <option value="text" {% if output_scrape_format == 'text' %}selected{% endif %}>Plain Text</option>
+                    <option value="pdf" {% if output_scrape_format == 'pdf' %}selected{% endif %}>PDF</option>
+                    <option value="xlsx" {% if output_scrape_format == 'xlsx' %}selected{% endif %}>XLSX (Excel)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn scrape-btn">Start Scraping</button>
+        </form>
+    </div>
+
+    
+     {% if scraped_data_display or scrape_error %}{% else %}block{% endif %}
+        <h2>Scraping Results</h2>
+        <div class="results-container">
+            {% if scrape_error %}
+                <p class="error-message">{{ scrape_error }}</p>
+            {% else %}
+                {% if scraped_data_display %}
+                    <pre class="scraped-output">{{ scraped_data_display }}</pre>
+                {% else %}
+                    <p>No data found for the selected criteria.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="results-actions">
+            {% if download_link %}
+                <a href="{{ download_link }}" class="btn action-btn download-btn">Download Scraped File</a>
+            {% endif %}
+            <a href="{% url 'data_scraping' %}" class="btn action-btn back-btn">Back to Scraper</a>
+        </div>
+    </div>
+</div>
+
+{# Link to external CSS and JavaScript files at the end of the body for performance #}
+<link rel="stylesheet" href="{% static 'css/scraper.css' %}">
+<script src="{% static 'js/scraper.js' %}"></script>
+
+{% endblock %}

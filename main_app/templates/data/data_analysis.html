@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis Results</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/analysis.css' %}">
+</head>
+<body>
+    {% load custom_filters %}
+
+    <div class="container-fluid">
+        <div class="dashboard-header">
+            <h1>Data Analysis</h1>
+            <div class="actions">
+                <div class="upload-form">
+                    <form action="{% url 'data_analysis' %}" method="post" enctype="multipart/form-data" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group mr-2">
+                            <input type="file" name="data_file" id="data_file" class="form-control-file" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload & Analyze</button>
+                    </form>
+                </div>
+                {% if analysis_results %}
+                    <button class="btn btn-secondary-custom" id="printResultsBtn">Print Results</button> {# ADD ID, REMOVE ONCLICK #}
+                {% endif %}
+            </div>
+        </div>
+
+        {% if error %}
+            <div class="alert error-message" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if analysis_results %}
+            <div id="analysis-results-content">
+                {# --- New Section: Raw Data / Edit --- #}
+                {% if df_html_table %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            Raw Data Preview & Edit (Limited)
+                        </div>
+                        <div class="card-body">
+                            <p>This table shows a preview of your uploaded data. For advanced editing, consider using a dedicated data manipulation tool or a JavaScript library like <a href="https://datatables.net/extensions/editor/" target="_blank" style="color: #e94560;">DataTables Editor</a> for in-browser editing.</p>
+                            <div class="table-responsive">
+                                {{ df_html_table|safe }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {# --- End New Section --- #}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card summary-card">
+                            <div class="card-header">
+                                Data Information
+                            </div>
+                            <div class="card-body">
+                                {{ analysis_results.data_info|safe }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card summary-card">
+                            <div class="card-header">
+                                Missing Values
+                            </div>
+                            <div class="card-body">
+                                {{ analysis_results.missing_values|safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        Numerical Data Analysis
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3>Summary Statistics</h3>
+                                {{ analysis_results.numerical_summary|safe }}
+                            </div>
+                        </div>
+                        
+                        <h3>Numerical Column Distributions (Histograms & Box Plots)</h3>
+                        <div class="grid-section">
+                            {% for col, plots in analysis_results.numerical_plots.items %}
+                                {% if plots.histogram and plots.boxplot %}
+                                    <div class="card">
+                                        <div class="card-header">
+                                            {{ col }}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="plot-container">
+                                                <img src="data:image/png;base64,{{ plots.histogram }}" alt="Histogram of {{ col }}">
+                                            </div>
+                                            <div class="plot-container">
+                                                <img src="data:image/png;base64,{{ plots.boxplot }}" alt="Box Plot of {{ col }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        Categorical Data Analysis
+                    </div>
+                    <div class="card-body">
+                        <h3>Categorical Data Frequencies</h3>
+                        <div class="row">
+                            <div class="col-12">
+                                {{ analysis_results.categorical_summary|safe }}
+                            </div>
+                        </div>
+                        
+                        <h3>Categorical Column Distributions (Count Plots)</h3>
+                        <div class="grid-section">
+                            {% for col, plot_data in analysis_results.categorical_plots.items %}
+                                {% if plot_data == 'Too many unique values to plot meaningfully.' %}
+                                    <div class="card">
+                                        <div class="card-header">
+                                            {{ col }}
+                                        </div>
+                                        <div class="card-body">
+                                            <p>{{ plot_data }}</p>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="card">
+                                        <div class="card-header">
+                                            {{ col }}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="plot-container">
+                                                <img src="data:image/png;base64,{{ plot_data }}" alt="Count Plot of {{ col }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        Correlation Analysis
+                    </div>
+                    <div class="card-body">
+                        <h3>Correlation Matrix</h3>
+                        <div class="row">
+                            <div class="col-12">
+                                {{ analysis_results.correlation_matrix|safe }}
+                            </div>
+                        </div>
+
+                        <h3>Key Relationships (Scatter Plots)</h3>
+                        <div class="grid-section">
+                            {% for pair, plot in analysis_results.scatter_plots.items %}
+                                <div class="card">
+                                    <div class="card-header">
+                                        {# Using pipe | as the delimiter in the filter argument #}
+                                        Relationship: {{ pair|replace:"_vs_|_vs_ " }} 
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="plot-container">
+                                            <img src="data:image/png;base64,{{ plot }}" alt="Scatter Plot of {{ pair|replace:"_vs_|_vs_ " }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            {% if analysis_results.scatter_plots_info %}
+                                <p>{{ analysis_results.scatter_plots_info }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div> {# End analysis-results-content #}
+
+        {% endif %}
+
+        <div class="bottom-back-button-container">
+            <button class="btn btn-secondary-custom" id="goBackBtn" style="background-color: #6c757d; border-color: #6c757d;"> {# ADD ID, REMOVE ONCLICK #}
+                <i class="fas fa-arrow-left me-2"></i> Go Back
+            </button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% load static %}
+    <script src="{% static 'js/data_analysis.js' %}"></script> {# LINK TO YOUR NEW JS FILE #}
+</body>
+</html>

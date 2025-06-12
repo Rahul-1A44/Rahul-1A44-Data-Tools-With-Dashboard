@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h1>Login</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {# Display general form errors (like invalid credentials) #}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                {{ error }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# Display Django messages (e.g., from views.py for activation or restrictions) #}
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn login-btn">Login</button>
+        </form>
+
+        <div class="auth-links">
+            <p>Don't have an account? <a href="{% url 'register_user' %}">Register here</a></p>
+            <p><a href="#">Forgot password?</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
