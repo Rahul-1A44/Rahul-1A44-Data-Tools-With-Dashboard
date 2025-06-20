@@ -7,7 +7,7 @@ A comprehensive Django-based dashboard web application that allows users to auth
 ## 🎯 Project Objectives
 
 - Provide an all-in-one **file management and conversion tool** via a web dashboard.
-- Enable secure **Gmail login integration** using Django AllAuth.
+- Enable secure **Gmail login integration** using Django All Auth.
 - Offer **media upload and storage** capabilities.
 - Deliver a clean and responsive **dashboard interface** for interaction.
 - Make data manipulation tasks easy for non-technical users via an intuitive UI.
